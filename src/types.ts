@@ -1,5 +1,7 @@
 import type {
   AgentCapabilities,
+  RequestPermissionRequest,
+  RequestPermissionResponse,
   SessionConfigOption,
   SessionNotification,
   SetSessionConfigOptionResponse,
@@ -336,6 +338,9 @@ export type AcpClientOptions = {
   verbose?: boolean;
   onSessionUpdate?: (notification: SessionNotification) => void;
   onClientOperation?: (operation: ClientOperation) => void;
+  extraEnv?: Record<string, string>;
+  onRequestPermission?: (params: RequestPermissionRequest) => Promise<RequestPermissionResponse>;
+  onStderr?: (line: string) => void;
 };
 
 export const SESSION_RECORD_SCHEMA = "acpx.session.v1" as const;

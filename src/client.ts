@@ -231,8 +231,9 @@ function readEnvCredential(methodId: string): string | undefined {
 
 function buildAgentEnvironment(
   authCredentials: Record<string, string> | undefined,
+  extraEnv?: Record<string, string>,
 ): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env };
+  const env: NodeJS.ProcessEnv = { ...process.env, ...extraEnv };
   if (!authCredentials) {
     return env;
   }
@@ -369,7 +370,7 @@ export class AcpClient {
 
     const child = spawn(command, args, {
       cwd: this.options.cwd,
-      env: buildAgentEnvironment(this.options.authCredentials),
+      env: buildAgentEnvironment(this.options.authCredentials, this.options.extraEnv),
       stdio: ["pipe", "pipe", "pipe"],
     });
 
@@ -385,10 +386,15 @@ export class AcpClient {
     this.attachAgentLifecycleObservers(child);
 
     child.stderr.on("data", (chunk: Buffer | string) => {
-      if (!this.options.verbose) {
-        return;
+      if (this.options.verbose) {
+        process.stderr.write(chunk);
       }
-      process.stderr.write(chunk);
+      if (this.options.onStderr) {
+        const lines = chunk.toString().split("\n").filter(Boolean);
+        for (const line of lines) {
+          this.options.onStderr(line);
+        }
+      }
     });
 
     const input = Writable.toWeb(child.stdin);
@@ -785,11 +791,15 @@ export class AcpClient {
 
     let response: RequestPermissionResponse;
     try {
-      response = await resolvePermissionRequest(
-        params,
-        this.options.permissionMode,
-        this.options.nonInteractivePermissions ?? "deny",
-      );
+      if (this.options.onRequestPermission) {
+        response = await this.options.onRequestPermission(params);
+      } else {
+        response = await resolvePermissionRequest(
+          params,
+          this.options.permissionMode,
+          this.options.nonInteractivePermissions ?? "deny",
+        );
+      }
     } catch (error) {
       if (error instanceof PermissionPromptUnavailableError) {
         this.notePromptPermissionFailure(params.sessionId, error);
