@@ -31,7 +31,7 @@ function joinPath(path: string[]): string {
   return path.join(".");
 }
 
-function isAllowedKey(path: string[], key: string): boolean {
+function isAllowedKey(_path: string[], key: string): boolean {
   if (ZED_TAG_KEYS.has(key)) {
     return true;
   }
