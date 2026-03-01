@@ -16,5 +16,10 @@ export {
 } from "./agent-registry.js";
 export { sessionUpdateToEventDrafts, createAcpxEvent } from "./events.js";
 export { formatErrorMessage } from "./error-normalization.js";
-export { listSessionsForAgent } from "./session-persistence.js";
+export {
+  listSessionsForAgent,
+  writeSessionRecord,
+  isoNow,
+} from "./session-persistence.js";
+export { SESSION_RECORD_SCHEMA } from "./types.js";
 export type { SessionRecord } from "./types.js";
