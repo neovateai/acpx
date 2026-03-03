@@ -1,6 +1,6 @@
-import { InitializeResponse, PromptResponse, SetSessionConfigOptionResponse } from '@agentclientprotocol/sdk';
-import { A as AcpClientOptions, P as PermissionStats, O as OutputErrorCode, a as OutputErrorOrigin, b as OutputErrorAcpPayload } from './types-DEG8uWyw.js';
-export { C as ClientOperation, c as PermissionMode } from './types-DEG8uWyw.js';
+import { InitializeResponse, PromptResponse, SetSessionConfigOptionResponse, SessionNotification } from '@agentclientprotocol/sdk';
+import { A as AcpClientOptions, P as PermissionStats, O as OutputErrorCode, a as OutputErrorOrigin, b as OutputErrorAcpPayload, c as AcpxEventDraft, d as AcpxEvent, S as SessionRecord } from './types-XhMk42Lk.js';
+export { C as ClientOperation, e as PermissionMode, f as SESSION_RECORD_SCHEMA } from './types-XhMk42Lk.js';
 
 type LoadSessionOptions = {
     suppressReplayUpdates?: boolean;
@@ -68,6 +68,7 @@ declare class AcpClient {
     private detachAgentHandles;
     private getConnection;
     private log;
+    private emitTiming;
     private selectAuthMethod;
     private authenticateIfRequired;
     private handlePermissionRequest;
@@ -115,4 +116,21 @@ declare function mergeAgentRegistry(overrides?: Record<string, string>): Record<
 declare function resolveAgentCommand(agentName: string, overrides?: Record<string, string>): string;
 declare function listBuiltInAgents(overrides?: Record<string, string>): string[];
 
-export { AcpClient, AcpClientOptions, AgentSpawnError, PermissionPromptUnavailableError, PermissionStats, type SessionCreateResult, listBuiltInAgents, mergeAgentRegistry, resolveAgentCommand };
+type EventIdentity = {
+    sessionId: string;
+    acpSessionId?: string;
+    agentSessionId?: string;
+    requestId?: string;
+    seq: number;
+    ts?: string;
+};
+declare function createAcpxEvent(identity: EventIdentity, draft: AcpxEventDraft): AcpxEvent;
+declare function sessionUpdateToEventDrafts(notification: SessionNotification): AcpxEventDraft[];
+
+declare function formatErrorMessage(error: unknown): string;
+
+declare function writeSessionRecord(record: SessionRecord): Promise<void>;
+declare function isoNow(): string;
+declare function listSessionsForAgent(agentCommand: string): Promise<SessionRecord[]>;
+
+export { AcpClient, AcpClientOptions, AcpxEvent, AcpxEventDraft, AgentSpawnError, PermissionPromptUnavailableError, PermissionStats, type SessionCreateResult, SessionRecord, createAcpxEvent, formatErrorMessage, isoNow, listBuiltInAgents, listSessionsForAgent, mergeAgentRegistry, resolveAgentCommand, sessionUpdateToEventDrafts, writeSessionRecord };

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { S as SessionRecord } from './types-DEG8uWyw.js';
+import { S as SessionRecord } from './types-XhMk42Lk.js';
 import '@agentclientprotocol/sdk';
 
 declare function parseTtlSeconds(value: string): number;

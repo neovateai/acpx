@@ -6,13 +6,27 @@ import {
 import {
   AcpClient,
   AgentSpawnError,
-  PermissionPromptUnavailableError
-} from "./chunk-6SQCOJO6.js";
+  PermissionPromptUnavailableError,
+  SESSION_RECORD_SCHEMA,
+  createAcpxEvent,
+  formatErrorMessage,
+  isoNow,
+  listSessionsForAgent,
+  sessionUpdateToEventDrafts,
+  writeSessionRecord
+} from "./chunk-MSMOXTGO.js";
 export {
   AcpClient,
   AgentSpawnError,
   PermissionPromptUnavailableError,
+  SESSION_RECORD_SCHEMA,
+  createAcpxEvent,
+  formatErrorMessage,
+  isoNow,
   listBuiltInAgents,
+  listSessionsForAgent,
   mergeAgentRegistry,
-  resolveAgentCommand
+  resolveAgentCommand,
+  sessionUpdateToEventDrafts,
+  writeSessionRecord
 };

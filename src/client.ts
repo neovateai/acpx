@@ -365,9 +365,11 @@ export class AcpClient {
       return;
     }
 
+    const startTotal = performance.now();
     const { command, args } = splitCommandLine(this.options.agentCommand);
     this.log(`spawning agent: ${command} ${args.join(" ")}`);
 
+    const spawnStart = performance.now();
     const child = spawn(command, args, {
       cwd: this.options.cwd,
       env: buildAgentEnvironment(this.options.authCredentials, this.options.extraEnv),
@@ -379,6 +381,8 @@ export class AcpClient {
     } catch (error) {
       throw new AgentSpawnError(this.options.agentCommand, error);
     }
+    this.emitTiming("start.spawn", performance.now() - spawnStart);
+
     this.closing = false;
     this.agentStartedAt = isoNow();
     this.lastAgentExit = undefined;
@@ -398,7 +402,9 @@ export class AcpClient {
     });
 
     const input = Writable.toWeb(child.stdin);
-    const output = Readable.toWeb(child.stdout) as unknown as ReadableStream<Uint8Array>;
+    const output = Readable.toWeb(
+      child.stdout,
+    ) as unknown as ReadableStream<Uint8Array>;
     const stream = ndJsonStream(input, output);
 
     const connection = new ClientSideConnection(
@@ -462,6 +468,7 @@ export class AcpClient {
     );
 
     try {
+      const initStart = performance.now();
       const initResult = await connection.initialize({
         protocolVersion: PROTOCOL_VERSION,
         clientCapabilities: {
@@ -476,13 +483,17 @@ export class AcpClient {
           version: "0.1.0",
         },
       });
+      this.emitTiming("start.initialize", performance.now() - initStart);
 
+      const authStart = performance.now();
       await this.authenticateIfRequired(connection, initResult.authMethods ?? []);
+      this.emitTiming("start.authenticate", performance.now() - authStart);
 
       this.connection = connection;
       this.agent = child;
       this.initResult = initResult;
       this.log(`initialized protocol version ${initResult.protocolVersion}`);
+      this.emitTiming("start.total", performance.now() - startTotal);
     } catch (error) {
       child.kill();
       throw error;
@@ -490,11 +501,13 @@ export class AcpClient {
   }
 
   async createSession(cwd = this.options.cwd): Promise<SessionCreateResult> {
+    const t0 = performance.now();
     const connection = this.getConnection();
     const result = await connection.newSession({
       cwd: asAbsoluteCwd(cwd),
       mcpServers: [],
     });
+    this.emitTiming("createSession", performance.now() - t0);
     return {
       sessionId: result.sessionId,
       agentSessionId: extractRuntimeSessionId(result._meta),
@@ -514,6 +527,7 @@ export class AcpClient {
     cwd = this.options.cwd,
     options: LoadSessionOptions = {},
   ): Promise<SessionLoadResult> {
+    const t0 = performance.now();
     const connection = this.getConnection();
     const previousSuppression = this.suppressSessionUpdates;
     this.suppressSessionUpdates =
@@ -522,26 +536,32 @@ export class AcpClient {
     let response: LoadSessionResponse | undefined;
 
     try {
+      const rpcStart = performance.now();
       response = await connection.loadSession({
         sessionId,
         cwd: asAbsoluteCwd(cwd),
         mcpServers: [],
       });
+      this.emitTiming("loadSession.rpc", performance.now() - rpcStart);
 
+      const drainStart = performance.now();
       await this.waitForSessionUpdateDrain(
         options.replayIdleMs ?? REPLAY_IDLE_MS,
         options.replayDrainTimeoutMs ?? REPLAY_DRAIN_TIMEOUT_MS,
       );
+      this.emitTiming("loadSession.drain", performance.now() - drainStart);
     } finally {
       this.suppressSessionUpdates = previousSuppression;
     }
 
+    this.emitTiming("loadSession.total", performance.now() - t0);
     return {
       agentSessionId: extractRuntimeSessionId(response?._meta),
     };
   }
 
   async prompt(sessionId: string, text: string): Promise<PromptResponse> {
+    const t0 = performance.now();
     const connection = this.getConnection();
     const restoreConsoleError = this.options.suppressSdkConsoleErrors
       ? installSdkConsoleErrorSuppression()
@@ -570,6 +590,7 @@ export class AcpClient {
 
     try {
       const response = await promptPromise;
+      this.emitTiming("prompt", performance.now() - t0);
       const permissionFailure = this.consumePromptPermissionFailure(sessionId);
       if (permissionFailure) {
         throw permissionFailure;
@@ -720,6 +741,10 @@ export class AcpClient {
       return;
     }
     process.stderr.write(`[acpx] ${message}\n`);
+  }
+
+  private emitTiming(label: string, durationMs: number): void {
+    this.options.onTiming?.(label, Math.round(durationMs * 100) / 100);
   }
 
   private selectAuthMethod(methods: AuthMethod[]): AuthSelection | undefined {

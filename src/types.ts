@@ -339,8 +339,11 @@ export type AcpClientOptions = {
   onSessionUpdate?: (notification: SessionNotification) => void;
   onClientOperation?: (operation: ClientOperation) => void;
   extraEnv?: Record<string, string>;
-  onRequestPermission?: (params: RequestPermissionRequest) => Promise<RequestPermissionResponse>;
+  onRequestPermission?: (
+    params: RequestPermissionRequest,
+  ) => Promise<RequestPermissionResponse>;
   onStderr?: (line: string) => void;
+  onTiming?: (label: string, durationMs: number) => void;
 };
 
 export const SESSION_RECORD_SCHEMA = "acpx.session.v1" as const;
