@@ -2022,11 +2022,21 @@ function exitCodeForOutputErrorCode(code) {
   }
 }
 
+// src/base-dir.ts
+import os from "os";
+import path3 from "path";
+var overrideDir;
+function setBaseDir(dir) {
+  overrideDir = dir;
+}
+function getBaseDir() {
+  return overrideDir ?? process.env.ACPX_HOME ?? path3.join(os.homedir(), ".acpx");
+}
+
 // src/session-persistence/repository.ts
 import { statSync } from "fs";
 import fs2 from "fs/promises";
-import os2 from "os";
-import path4 from "path";
+import path5 from "path";
 
 // src/persisted-key-policy.ts
 var SNAKE_CASE_KEY = /^[a-z][a-z0-9_]*$/;
@@ -2053,8 +2063,8 @@ var OPAQUE_VALUE_PATHS = /* @__PURE__ */ new Set([
 function isRecord(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
-function joinPath(path5) {
-  return path5.join(".");
+function joinPath(path6) {
+  return path6.join(".");
 }
 function isAllowedKey(_path, key) {
   if (ZED_TAG_KEYS.has(key)) {
@@ -2062,39 +2072,39 @@ function isAllowedKey(_path, key) {
   }
   return false;
 }
-function shouldSkipKeyRule(path5) {
-  return MAP_OBJECT_PATHS.has(joinPath(path5));
+function shouldSkipKeyRule(path6) {
+  return MAP_OBJECT_PATHS.has(joinPath(path6));
 }
-function shouldSkipDescend(path5) {
-  return OPAQUE_VALUE_PATHS.has(joinPath(path5)) || isToolResultOutputPath(path5);
+function shouldSkipDescend(path6) {
+  return OPAQUE_VALUE_PATHS.has(joinPath(path6)) || isToolResultOutputPath(path6);
 }
-function isToolResultOutputPath(path5) {
-  if (path5.length < 5 || path5[path5.length - 1] !== "output") {
+function isToolResultOutputPath(path6) {
+  if (path6.length < 5 || path6[path6.length - 1] !== "output") {
     return false;
   }
-  const toolResultsIndex = path5.lastIndexOf("tool_results");
-  if (toolResultsIndex === -1 || toolResultsIndex + 2 !== path5.length - 1) {
+  const toolResultsIndex = path6.lastIndexOf("tool_results");
+  if (toolResultsIndex === -1 || toolResultsIndex + 2 !== path6.length - 1) {
     return false;
   }
-  const parentPath = path5.slice(0, toolResultsIndex + 1).join(".");
+  const parentPath = path6.slice(0, toolResultsIndex + 1).join(".");
   return parentPath === "messages.Agent.tool_results";
 }
-function collectViolations(value, path5, violations) {
+function collectViolations(value, path6, violations) {
   if (Array.isArray(value)) {
     for (const entry of value) {
-      collectViolations(entry, path5, violations);
+      collectViolations(entry, path6, violations);
     }
     return;
   }
   if (!isRecord(value)) {
     return;
   }
-  const skipKeyRule = shouldSkipKeyRule(path5);
+  const skipKeyRule = shouldSkipKeyRule(path6);
   for (const [key, child] of Object.entries(value)) {
-    if (!skipKeyRule && !SNAKE_CASE_KEY.test(key) && !isAllowedKey(path5, key)) {
-      violations.push(`${joinPath(path5)}.${key}`.replace(/^\./, ""));
+    if (!skipKeyRule && !SNAKE_CASE_KEY.test(key) && !isAllowedKey(path6, key)) {
+      violations.push(`${joinPath(path6)}.${key}`.replace(/^\./, ""));
     }
-    const childPath = [...path5, key];
+    const childPath = [...path6, key];
     if (shouldSkipDescend(childPath)) {
       continue;
     }
@@ -2117,27 +2127,26 @@ function assertPersistedKeyPolicy(value) {
 }
 
 // src/session-event-log.ts
-import os from "os";
-import path3 from "path";
+import path4 from "path";
 var DEFAULT_EVENT_SEGMENT_MAX_BYTES = 64 * 1024 * 1024;
 var DEFAULT_EVENT_MAX_SEGMENTS = 5;
 function sessionBaseDir() {
-  return path3.join(os.homedir(), ".acpx", "sessions");
+  return path4.join(getBaseDir(), "sessions");
 }
 function safeSessionId(sessionId) {
   return encodeURIComponent(sessionId);
 }
 function sessionEventActivePath(sessionId) {
-  return path3.join(sessionBaseDir(), `${safeSessionId(sessionId)}.events.ndjson`);
+  return path4.join(sessionBaseDir(), `${safeSessionId(sessionId)}.events.ndjson`);
 }
 function sessionEventSegmentPath(sessionId, segment) {
-  return path3.join(
+  return path4.join(
     sessionBaseDir(),
     `${safeSessionId(sessionId)}.events.${segment}.ndjson`
   );
 }
 function sessionEventLockPath(sessionId) {
-  return path3.join(sessionBaseDir(), `${safeSessionId(sessionId)}.events.lock`);
+  return path4.join(sessionBaseDir(), `${safeSessionId(sessionId)}.events.lock`);
 }
 function defaultSessionEventLog(sessionId) {
   return {
@@ -2522,10 +2531,10 @@ function serializeSessionRecordForDisk(record) {
 var DEFAULT_HISTORY_LIMIT = 20;
 function sessionFilePath(acpxRecordId) {
   const safeId = encodeURIComponent(acpxRecordId);
-  return path4.join(sessionBaseDir2(), `${safeId}.json`);
+  return path5.join(sessionBaseDir2(), `${safeId}.json`);
 }
 function sessionBaseDir2() {
-  return path4.join(os2.homedir(), ".acpx", "sessions");
+  return path5.join(getBaseDir(), "sessions");
 }
 async function ensureSessionDir() {
   await fs2.mkdir(sessionBaseDir2(), { recursive: true });
@@ -2574,7 +2583,7 @@ async function resolveSessionRecord(sessionId) {
   throw new SessionNotFoundError(sessionId);
 }
 function hasGitDirectory(dir) {
-  const gitPath = path4.join(dir, ".git");
+  const gitPath = path5.join(dir, ".git");
   try {
     return statSync(gitPath).isDirectory();
   } catch {
@@ -2582,15 +2591,15 @@ function hasGitDirectory(dir) {
   }
 }
 function isWithinBoundary(boundary, target) {
-  const relative = path4.relative(boundary, target);
-  return relative.length === 0 || !relative.startsWith("..") && !path4.isAbsolute(relative);
+  const relative = path5.relative(boundary, target);
+  return relative.length === 0 || !relative.startsWith("..") && !path5.isAbsolute(relative);
 }
 function absolutePath(value) {
-  return path4.resolve(value);
+  return path5.resolve(value);
 }
 function findGitRepositoryRoot(startDir) {
   let current = absolutePath(startDir);
-  const root = path4.parse(current).root;
+  const root = path5.parse(current).root;
   for (; ; ) {
     if (hasGitDirectory(current)) {
       return current;
@@ -2598,7 +2607,7 @@ function findGitRepositoryRoot(startDir) {
     if (current === root) {
       return void 0;
     }
-    const parent = path4.dirname(current);
+    const parent = path5.dirname(current);
     if (parent === current) {
       return void 0;
     }
@@ -2623,7 +2632,7 @@ async function listSessions() {
     if (!entry.isFile() || !entry.name.endsWith(".json")) {
       continue;
     }
-    const fullPath = path4.join(sessionBaseDir2(), entry.name);
+    const fullPath = path5.join(sessionBaseDir2(), entry.name);
     try {
       const payload = await fs2.readFile(fullPath, "utf8");
       const parsed = parseSessionRecord(JSON.parse(payload));
@@ -2676,7 +2685,7 @@ async function findSessionByDirectoryWalk(options) {
     return session.name === normalizedName;
   };
   let current = normalizedStart;
-  const walkRoot = path4.parse(current).root;
+  const walkRoot = path5.parse(current).root;
   for (; ; ) {
     const match = sessions.find((session) => matchesScope(session, current));
     if (match) {
@@ -2685,7 +2694,7 @@ async function findSessionByDirectoryWalk(options) {
     if (current === walkBoundary || current === walkRoot) {
       return void 0;
     }
-    const parent = path4.dirname(current);
+    const parent = path5.dirname(current);
     if (parent === current) {
       return void 0;
     }
@@ -2724,6 +2733,8 @@ export {
   normalizeOutputError,
   exitCodeForOutputErrorCode,
   assertPersistedKeyPolicy,
+  setBaseDir,
+  getBaseDir,
   DEFAULT_EVENT_SEGMENT_MAX_BYTES,
   DEFAULT_EVENT_MAX_SEGMENTS,
   sessionBaseDir,

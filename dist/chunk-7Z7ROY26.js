@@ -18,6 +18,7 @@ import {
   findGitRepositoryRoot,
   findSessionByDirectoryWalk,
   formatErrorMessage,
+  getBaseDir,
   isAcpQueryClosedBeforeResponseError,
   isAcpResourceNotFoundError,
   isAcpxEvent,
@@ -33,7 +34,7 @@ import {
   sessionUpdateToEventDrafts,
   truncateInputPreview,
   writeSessionRecord
-} from "./chunk-Y6WUKJFB.js";
+} from "./chunk-BIRIVPPE.js";
 
 // src/session-runtime.ts
 import { spawn } from "child_process";
@@ -838,7 +839,6 @@ var QueueOwnerTurnController = class {
 import { createHash, randomUUID as randomUUID2 } from "crypto";
 import fs2 from "fs/promises";
 import net from "net";
-import os from "os";
 import path from "path";
 
 // src/queue-messages.ts
@@ -1053,7 +1053,7 @@ var PROCESS_POLL_MS = 50;
 var QUEUE_CONNECT_ATTEMPTS = 40;
 var QUEUE_CONNECT_RETRY_MS = 50;
 function queueBaseDir() {
-  return path.join(os.homedir(), ".acpx", "queues");
+  return path.join(getBaseDir(), "queues");
 }
 function makeQueueOwnerError(requestId, message, detailCode, options = {}) {
   return {

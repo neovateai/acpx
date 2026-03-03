@@ -1,3 +1,4 @@
+export { setBaseDir, getBaseDir } from "./base-dir.js";
 export { AcpClient } from "./client.js";
 export type { SessionCreateResult } from "./client.js";
 export type {

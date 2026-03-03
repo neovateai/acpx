@@ -17,7 +17,7 @@ import {
   sendSession,
   setSessionConfigOption,
   setSessionMode
-} from "./chunk-7GH6L666.js";
+} from "./chunk-7Z7ROY26.js";
 import {
   ACPX_EVENT_TYPES,
   AUTH_POLICIES,
@@ -32,12 +32,13 @@ import {
   findGitRepositoryRoot,
   findSession,
   findSessionByDirectoryWalk,
+  getBaseDir,
   isAcpxEvent,
   listSessionsForAgent,
   normalizeOutputError,
   normalizeRuntimeSessionId,
   sessionUpdateToEventDrafts
-} from "./chunk-Y6WUKJFB.js";
+} from "./chunk-BIRIVPPE.js";
 
 // src/cli.ts
 import { realpathSync as realpathSync2 } from "fs";
@@ -247,7 +248,6 @@ function resolveAgentInvocation(explicitAgentName, globalFlags, config) {
 
 // src/config.ts
 import fs from "fs/promises";
-import os from "os";
 import path2 from "path";
 var DEFAULT_TIMEOUT_MS = void 0;
 var DEFAULT_TTL_MS = 3e5;
@@ -264,7 +264,7 @@ var VALID_NON_INTERACTIVE_PERMISSION_POLICIES = /* @__PURE__ */ new Set(["deny",
 var VALID_AUTH_POLICIES = /* @__PURE__ */ new Set(["skip", "fail"]);
 var VALID_OUTPUT_FORMATS = /* @__PURE__ */ new Set(["text", "json", "quiet"]);
 function defaultGlobalConfigPath() {
-  return path2.join(os.homedir(), ".acpx", "config.json");
+  return path2.join(getBaseDir(), "config.json");
 }
 function projectConfigPath(cwd) {
   return path2.join(path2.resolve(cwd), ".acpxrc.json");

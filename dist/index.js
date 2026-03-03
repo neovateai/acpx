@@ -10,11 +10,13 @@ import {
   SESSION_RECORD_SCHEMA,
   createAcpxEvent,
   formatErrorMessage,
+  getBaseDir,
   isoNow,
   listSessionsForAgent,
   sessionUpdateToEventDrafts,
+  setBaseDir,
   writeSessionRecord
-} from "./chunk-Y6WUKJFB.js";
+} from "./chunk-BIRIVPPE.js";
 export {
   AcpClient,
   AgentSpawnError,
@@ -22,11 +24,13 @@ export {
   SESSION_RECORD_SCHEMA,
   createAcpxEvent,
   formatErrorMessage,
+  getBaseDir,
   isoNow,
   listBuiltInAgents,
   listSessionsForAgent,
   mergeAgentRegistry,
   resolveAgentCommand,
   sessionUpdateToEventDrafts,
+  setBaseDir,
   writeSessionRecord
 };

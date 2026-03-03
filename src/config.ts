@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { DEFAULT_AGENT_NAME, normalizeAgentName } from "./agent-registry.js";
+import { getBaseDir } from "./base-dir.js";
 import type {
   AuthPolicy,
   NonInteractivePermissionPolicy,
@@ -64,7 +64,7 @@ const VALID_AUTH_POLICIES = new Set<AuthPolicy>(["skip", "fail"]);
 const VALID_OUTPUT_FORMATS = new Set<OutputFormat>(["text", "json", "quiet"]);
 
 function defaultGlobalConfigPath(): string {
-  return path.join(os.homedir(), ".acpx", "config.json");
+  return path.join(getBaseDir(), "config.json");
 }
 
 function projectConfigPath(cwd: string): string {

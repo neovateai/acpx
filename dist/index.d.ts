@@ -2,6 +2,9 @@ import { InitializeResponse, PromptResponse, SetSessionConfigOptionResponse, Ses
 import { A as AcpClientOptions, P as PermissionStats, O as OutputErrorCode, a as OutputErrorOrigin, b as OutputErrorAcpPayload, c as AcpxEventDraft, d as AcpxEvent, S as SessionRecord } from './types-XhMk42Lk.js';
 export { C as ClientOperation, e as PermissionMode, f as SESSION_RECORD_SCHEMA } from './types-XhMk42Lk.js';
 
+declare function setBaseDir(dir: string): void;
+declare function getBaseDir(): string;
+
 type LoadSessionOptions = {
     suppressReplayUpdates?: boolean;
     replayIdleMs?: number;
@@ -133,4 +136,4 @@ declare function writeSessionRecord(record: SessionRecord): Promise<void>;
 declare function isoNow(): string;
 declare function listSessionsForAgent(agentCommand: string): Promise<SessionRecord[]>;
 
-export { AcpClient, AcpClientOptions, AcpxEvent, AcpxEventDraft, AgentSpawnError, PermissionPromptUnavailableError, PermissionStats, type SessionCreateResult, SessionRecord, createAcpxEvent, formatErrorMessage, isoNow, listBuiltInAgents, listSessionsForAgent, mergeAgentRegistry, resolveAgentCommand, sessionUpdateToEventDrafts, writeSessionRecord };
+export { AcpClient, AcpClientOptions, AcpxEvent, AcpxEventDraft, AgentSpawnError, PermissionPromptUnavailableError, PermissionStats, type SessionCreateResult, SessionRecord, createAcpxEvent, formatErrorMessage, getBaseDir, isoNow, listBuiltInAgents, listSessionsForAgent, mergeAgentRegistry, resolveAgentCommand, sessionUpdateToEventDrafts, setBaseDir, writeSessionRecord };

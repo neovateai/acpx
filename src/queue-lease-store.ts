@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
+import { getBaseDir } from "./base-dir.js";
 
 const PROCESS_EXIT_GRACE_MS = 1_500;
 const PROCESS_POLL_MS = 50;
@@ -36,7 +36,7 @@ export type QueueOwnerStatus = {
 };
 
 function queueBaseDir(): string {
-  return path.join(os.homedir(), ".acpx", "queues");
+  return path.join(getBaseDir(), "queues");
 }
 
 function queueKeyForSession(sessionId: string): string {

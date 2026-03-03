@@ -1,7 +1,7 @@
 import { statSync } from "node:fs";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
+import { getBaseDir } from "../base-dir.js";
 import { SessionNotFoundError, SessionResolutionError } from "../errors.js";
 import { assertPersistedKeyPolicy } from "../persisted-key-policy.js";
 import { parseSessionRecord } from "./parse.js";
@@ -30,7 +30,7 @@ function sessionFilePath(acpxRecordId: string): string {
 }
 
 function sessionBaseDir(): string {
-  return path.join(os.homedir(), ".acpx", "sessions");
+  return path.join(getBaseDir(), "sessions");
 }
 
 async function ensureSessionDir(): Promise<void> {

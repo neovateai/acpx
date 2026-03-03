@@ -2,8 +2,8 @@ import type { SetSessionConfigOptionResponse } from "@agentclientprotocol/sdk";
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import net from "node:net";
-import os from "node:os";
 import path from "node:path";
+import { getBaseDir } from "./base-dir.js";
 import { normalizeOutputError } from "./error-normalization.js";
 import { QueueConnectionError, QueueProtocolError } from "./errors.js";
 import {
@@ -35,7 +35,7 @@ const QUEUE_CONNECT_ATTEMPTS = 40;
 export const QUEUE_CONNECT_RETRY_MS = 50;
 
 function queueBaseDir(): string {
-  return path.join(os.homedir(), ".acpx", "queues");
+  return path.join(getBaseDir(), "queues");
 }
 
 function makeQueueOwnerError(
