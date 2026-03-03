@@ -17,7 +17,7 @@ import {
   sendSession,
   setSessionConfigOption,
   setSessionMode
-} from "./chunk-JDRB77PZ.js";
+} from "./chunk-7GH6L666.js";
 import {
   ACPX_EVENT_TYPES,
   AUTH_POLICIES,
@@ -37,7 +37,7 @@ import {
   normalizeOutputError,
   normalizeRuntimeSessionId,
   sessionUpdateToEventDrafts
-} from "./chunk-MSMOXTGO.js";
+} from "./chunk-Y6WUKJFB.js";
 
 // src/cli.ts
 import { realpathSync as realpathSync2 } from "fs";
